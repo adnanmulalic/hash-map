@@ -45,10 +45,14 @@ class HashMap {
                 travelToLastNode(node.nextNode);
             }
             travelToLastNode(this.buckets[hashKey]);
-            this.capacity = this.length();
         }
+        this.capacity = this.length();
         if (this.capacity / this.buckets.length >= this.loadFactor) {
-            console.log("load factor breached");
+            let oldBuckets = this.entries();
+            this.buckets = new Array(this.buckets.length * 2).fill(null);
+            oldBuckets.forEach((bucket) => {
+                this.set(bucket[0], bucket[1]);
+            })
         }
 
         
@@ -86,7 +90,6 @@ class HashMap {
                 currentNode.nextNode = currentNode.nextNode.nextNode;
             }
             this.capacity--;
-            console.log(currentNode)
             return true;
         } else {
             return false;
@@ -95,8 +98,7 @@ class HashMap {
 
     length() {
         let counter = 0;
-        this.buckets.forEach(bucket => {
-            console.log(bucket)
+        this.buckets.forEach((bucket) => {
                 while (bucket) {
                     counter++;
                     bucket = bucket.nextNode;
@@ -112,8 +114,12 @@ class HashMap {
 
     keys() {
         let keys = [];
-        this.buckets.forEach(bucket => {
-            bucket && keys.push(bucket.key);
+        this.buckets.forEach((bucket) => {
+            let currentNode = bucket;
+            while (currentNode) {
+                keys.push(currentNode.key);
+                currentNode = currentNode.nextNode;
+            }
         });
         return keys;
     }
@@ -121,15 +127,21 @@ class HashMap {
     values() {
         let values = [];
         this.buckets.forEach(bucket => {
-            bucket && values.push(bucket.value);
+            while (bucket) {
+                values.push(bucket.value);
+                bucket = bucket.nextNode;
+            }
         });
         return values;
     }
 
     entries() {
         let pairs = [];
-        this.buckets.forEach(bucket => {
-            bucket && pairs.push([bucket.key, bucket.value]);
+        this.buckets.forEach((bucket) => {
+            while (bucket) {
+                pairs.push([bucket.key, bucket.value]);
+                bucket = bucket.nextNode;
+            }
         });
         return pairs;
     }
